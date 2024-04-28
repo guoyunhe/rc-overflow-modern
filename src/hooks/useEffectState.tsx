@@ -1,4 +1,4 @@
-import useEvent from 'rc-util/lib/hooks/useEvent';
+import useEvent from 'rc-util-modern/dist/hooks/useEvent';
 import * as React from 'react';
 import { unstable_batchedUpdates } from 'react-dom';
 import channelUpdate from './channelUpdate';
@@ -17,13 +17,13 @@ export function useBatcher() {
   const updateFuncRef = React.useRef<UpdateCallbackFunc[]>(null);
 
   // Notify update
-  const notifyEffectUpdate: NotifyEffectUpdate = callback => {
+  const notifyEffectUpdate: NotifyEffectUpdate = (callback) => {
     if (!updateFuncRef.current) {
       updateFuncRef.current = [];
 
       channelUpdate(() => {
         unstable_batchedUpdates(() => {
-          updateFuncRef.current.forEach(fn => {
+          updateFuncRef.current.forEach((fn) => {
             fn();
           });
           updateFuncRef.current = null;
@@ -42,7 +42,7 @@ export function useBatcher() {
  */
 export default function useEffectState<T extends string | number | object>(
   notifyEffectUpdate: NotifyEffectUpdate,
-  defaultValue?: T,
+  defaultValue?: T
 ): [T, (value: Updater<T>) => void] {
   // Value
   const [stateValue, setStateValue] = React.useState(defaultValue);

@@ -1,7 +1,7 @@
+import useLayoutEffect from 'rc-util-modern/dist/hooks/useLayoutEffect';
 import React from 'react';
-import useLayoutEffect from "rc-util/lib/hooks/useLayoutEffect";
-import Overflow from '../src';
 import '../assets/index.less';
+import Overflow from '../src';
 import './common.less';
 
 interface ItemType {
@@ -123,7 +123,7 @@ const Demo = () => {
                   maxWidth: '100%',
                 }}
                 value={inputValue}
-                onChange={e => {
+                onChange={(e) => {
                   setInputValue(e.target.value);
                 }}
                 ref={inputRef}

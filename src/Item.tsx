@@ -1,6 +1,6 @@
-import * as React from 'react';
 import classNames from 'classnames';
-import ResizeObserver from 'rc-resize-observer';
+import ResizeObserver from 'rc-resize-observer-modern';
+import * as React from 'react';
 import type { ComponentType } from './RawItem';
 
 // Use shared variable to save bundle size
@@ -28,10 +28,7 @@ export interface ItemProps<ItemType> extends React.HTMLAttributes<any> {
   invalidate?: boolean;
 }
 
-function InternalItem<ItemType>(
-  props: ItemProps<ItemType>,
-  ref: React.Ref<any>,
-) {
+function InternalItem<ItemType>(props: ItemProps<ItemType>, ref: React.Ref<any>) {
   const {
     prefixCls,
     invalidate,
@@ -61,12 +58,11 @@ function InternalItem<ItemType>(
     () => () => {
       internalRegisterSize(null);
     },
-    [],
+    []
   );
 
   // ================================ Render ================================
-  const childNode =
-    renderItem && item !== UNDEFINED ? renderItem(item) : children;
+  const childNode = renderItem && item !== UNDEFINED ? renderItem(item) : children;
 
   let overflowStyle: React.CSSProperties | undefined;
   if (!invalidate) {

@@ -1,9 +1,9 @@
+import { act, render } from '@testing-library/react';
+import { spyElementPrototypes } from 'rc-util-modern/dist/test/domHook';
 import React from 'react';
-import { render, act } from '@testing-library/react';
-import { spyElementPrototypes } from 'rc-util/lib/test/domHook';
 import Overflow from '../src';
 
-import { _rs as onResize } from 'rc-resize-observer/lib/utils/observerUtil';
+import { _rs as onResize } from 'rc-resize-observer-modern/dist/utils/observerUtil';
 
 interface ItemType {
   label: React.ReactNode;
@@ -42,7 +42,7 @@ describe('Overflow.github', () => {
   const propDef = {
     get() {
       let targetWidth = 0;
-      Object.keys(widths).forEach(key => {
+      Object.keys(widths).forEach((key) => {
         if (this.className.includes(key)) {
           targetWidth = widths[key];
         }
@@ -76,7 +76,7 @@ describe('Overflow.github', () => {
         renderItem={renderItem}
         renderRest={renderRest}
         maxCount="responsive"
-      />,
+      />
     );
 
     // width & rest resize
@@ -88,9 +88,7 @@ describe('Overflow.github', () => {
     });
 
     const items = Array.from(
-      container.querySelectorAll<HTMLDivElement>(
-        '.rc-overflow-item:not(.rc-overflow-item-rest)',
-      ),
+      container.querySelectorAll<HTMLDivElement>('.rc-overflow-item:not(.rc-overflow-item-rest)')
     );
 
     for (let i = 0; i < items.length; i += 1) {

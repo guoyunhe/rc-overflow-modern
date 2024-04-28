@@ -1,13 +1,13 @@
-import * as React from 'react';
-import { useState, useMemo, useCallback } from 'react';
 import classNames from 'classnames';
-import ResizeObserver from 'rc-resize-observer';
-import useLayoutEffect from 'rc-util/lib/hooks/useLayoutEffect';
+import ResizeObserver from 'rc-resize-observer-modern';
+import useLayoutEffect from 'rc-util-modern/dist/hooks/useLayoutEffect';
+import * as React from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import Item from './Item';
-import useEffectState, { useBatcher } from './hooks/useEffectState';
 import type { ComponentType } from './RawItem';
 import RawItem from './RawItem';
 import { OverflowContext } from './context';
+import useEffectState, { useBatcher } from './hooks/useEffectState';
 
 const RESPONSIVE = 'responsive' as const;
 const INVALIDATE = 'invalidate' as const;
@@ -28,9 +28,7 @@ export interface OverflowProps<ItemType> extends React.HTMLAttributes<any> {
   /** @private Do not use in your production. Render raw node that need wrap Item by developer self */
   renderRawItem?: (item: ItemType, index: number) => React.ReactElement;
   maxCount?: number | typeof RESPONSIVE | typeof INVALIDATE;
-  renderRest?:
-    | React.ReactNode
-    | ((omittedItems: ItemType[]) => React.ReactNode);
+  renderRest?: React.ReactNode | ((omittedItems: ItemType[]) => React.ReactNode);
   /** @private Do not use in your production. Render raw node that need wrap Item by developer self */
   renderRawRest?: (omittedItems: ItemType[]) => React.ReactElement;
   suffix?: React.ReactNode;
@@ -48,10 +46,7 @@ function defaultRenderRest<ItemType>(omittedItems: ItemType[]) {
   return `+ ${omittedItems.length} ...`;
 }
 
-function Overflow<ItemType = any>(
-  props: OverflowProps<ItemType>,
-  ref: React.Ref<HTMLDivElement>,
-) {
+function Overflow<ItemType = any>(props: OverflowProps<ItemType>, ref: React.Ref<HTMLDivElement>) {
   const {
     prefixCls = 'rc-overflow',
     data = [],
@@ -76,30 +71,18 @@ function Overflow<ItemType = any>(
 
   const notifyEffectUpdate = useBatcher();
 
-  const [containerWidth, setContainerWidth] = useEffectState<number>(
-    notifyEffectUpdate,
-    null,
-  );
+  const [containerWidth, setContainerWidth] = useEffectState<number>(notifyEffectUpdate, null);
   const mergedContainerWidth = containerWidth || 0;
 
   const [itemWidths, setItemWidths] = useEffectState(
     notifyEffectUpdate,
-    new Map<React.Key, number>(),
+    new Map<React.Key, number>()
   );
 
-  const [prevRestWidth, setPrevRestWidth] = useEffectState<number>(
-    notifyEffectUpdate,
-    0,
-  );
-  const [restWidth, setRestWidth] = useEffectState<number>(
-    notifyEffectUpdate,
-    0,
-  );
+  const [prevRestWidth, setPrevRestWidth] = useEffectState<number>(notifyEffectUpdate, 0);
+  const [restWidth, setRestWidth] = useEffectState<number>(notifyEffectUpdate, 0);
 
-  const [suffixWidth, setSuffixWidth] = useEffectState<number>(
-    notifyEffectUpdate,
-    0,
-  );
+  const [suffixWidth, setSuffixWidth] = useEffectState<number>(notifyEffectUpdate, 0);
   const [suffixFixedStart, setSuffixFixedStart] = useState<number>(null);
 
   const [displayCount, setDisplayCount] = useState<number>(null);
@@ -126,9 +109,7 @@ function Overflow<ItemType = any>(
   /**
    * When is `responsive`, we will always render rest node to get the real width of it for calculation
    */
-  const showRest =
-    shouldResponsive ||
-    (typeof maxCount === 'number' && data.length > maxCount);
+  const showRest = shouldResponsive || (typeof maxCount === 'number' && data.length > maxCount);
 
   const mergedData = useMemo(() => {
     let items = data;
@@ -137,10 +118,7 @@ function Overflow<ItemType = any>(
       if (containerWidth === null && fullySSR) {
         items = data;
       } else {
-        items = data.slice(
-          0,
-          Math.min(data.length, mergedContainerWidth / itemWidth),
-        );
+        items = data.slice(0, Math.min(data.length, mergedContainerWidth / itemWidth));
       }
     } else if (typeof maxCount === 'number') {
       items = data.slice(0, maxCount);
@@ -164,26 +142,18 @@ function Overflow<ItemType = any>(
       }
       return (itemKey && (item as any)?.[itemKey]) ?? index;
     },
-    [itemKey],
+    [itemKey]
   );
 
-  const mergedRenderItem = useCallback(
-    renderItem || ((item: ItemType) => item),
-    [renderItem],
-  );
+  const mergedRenderItem = useCallback(renderItem || ((item: ItemType) => item), [renderItem]);
 
-  function updateDisplayCount(
-    count: number,
-    suffixFixedStartVal: number,
-    notReady?: boolean,
-  ) {
+  function updateDisplayCount(count: number, suffixFixedStartVal: number, notReady?: boolean) {
     // React 18 will sync render even when the value is same in some case.
     // We take `mergedData` as deps which may cause dead loop if it's dynamic generate.
     // ref: https://github.com/ant-design/ant-design/issues/36559
     if (
       displayCount === count &&
-      (suffixFixedStartVal === undefined ||
-        suffixFixedStartVal === suffixFixedStart)
+      (suffixFixedStartVal === undefined || suffixFixedStartVal === suffixFixedStart)
     ) {
       return;
     }
@@ -206,7 +176,7 @@ function Overflow<ItemType = any>(
   }
 
   function registerSize(key: React.Key, width: number | null) {
-    setItemWidths(origin => {
+    setItemWidths((origin) => {
       const clone = new Map(origin);
 
       if (width === null) {
@@ -233,11 +203,7 @@ function Overflow<ItemType = any>(
   }
 
   useLayoutEffect(() => {
-    if (
-      mergedContainerWidth &&
-      typeof mergedRestWidth === 'number' &&
-      mergedData
-    ) {
+    if (mergedContainerWidth && typeof mergedRestWidth === 'number' && mergedData) {
       let totalWidth = suffixWidth;
 
       const len = mergedData.length;
@@ -270,18 +236,14 @@ function Overflow<ItemType = any>(
           // Only one means `totalWidth` is the final width
           (lastIndex === 0 && totalWidth <= mergedContainerWidth) ||
           // Last two width will be the final width
-          (i === lastIndex - 1 &&
-            totalWidth + getItemWidth(lastIndex)! <= mergedContainerWidth)
+          (i === lastIndex - 1 && totalWidth + getItemWidth(lastIndex)! <= mergedContainerWidth)
         ) {
           // Additional check if match the end
           updateDisplayCount(lastIndex, null);
           break;
         } else if (totalWidth + mergedRestWidth > mergedContainerWidth) {
           // Can not hold all the content to show rest
-          updateDisplayCount(
-            i - 1,
-            totalWidth - currentItemWidth - suffixWidth + restWidth,
-          );
+          updateDisplayCount(i - 1, totalWidth - currentItemWidth - suffixWidth + restWidth);
           break;
         }
       }
@@ -290,14 +252,7 @@ function Overflow<ItemType = any>(
         setSuffixFixedStart(null);
       }
     }
-  }, [
-    mergedContainerWidth,
-    itemWidths,
-    restWidth,
-    suffixWidth,
-    getKey,
-    mergedData,
-  ]);
+  }, [mergedContainerWidth, itemWidths, restWidth, suffixWidth, getKey, mergedData]);
 
   // ================================ Render ================================
   const displayRest = restReady && !!omittedItems.length;
@@ -366,26 +321,24 @@ function Overflow<ItemType = any>(
 
   const mergedRenderRest = renderRest || defaultRenderRest;
 
-    const restNode = renderRawRest ? (
-      <OverflowContext.Provider
-        value={{
-          ...itemSharedProps,
-          ...restContextProps,
-        }}
-      >
-        {renderRawRest(omittedItems)}
-      </OverflowContext.Provider>
-    ) : (
-      <Item
-        {...itemSharedProps}
-        // When not show, order should be the last
-        {...restContextProps}
-      >
-        {typeof mergedRenderRest === 'function'
-          ? mergedRenderRest(omittedItems)
-          : mergedRenderRest}
-      </Item>
-    );
+  const restNode = renderRawRest ? (
+    <OverflowContext.Provider
+      value={{
+        ...itemSharedProps,
+        ...restContextProps,
+      }}
+    >
+      {renderRawRest(omittedItems)}
+    </OverflowContext.Provider>
+  ) : (
+    <Item
+      {...itemSharedProps}
+      // When not show, order should be the last
+      {...restContextProps}
+    >
+      {typeof mergedRenderRest === 'function' ? mergedRenderRest(omittedItems) : mergedRenderRest}
+    </Item>
+  );
 
   const overflowNode = (
     <Component
@@ -421,7 +374,9 @@ function Overflow<ItemType = any>(
     <ResizeObserver onResize={onOverflowResize} disabled={!shouldResponsive}>
       {overflowNode}
     </ResizeObserver>
-  ) : overflowNode;
+  ) : (
+    overflowNode
+  );
 }
 
 const ForwardOverflow = React.forwardRef(Overflow);
@@ -429,7 +384,7 @@ const ForwardOverflow = React.forwardRef(Overflow);
 type ForwardOverflowType = <ItemType = any>(
   props: React.PropsWithChildren<OverflowProps<ItemType>> & {
     ref?: React.Ref<HTMLDivElement>;
-  },
+  }
 ) => React.ReactElement;
 
 type FilledOverflowType = ForwardOverflowType & {
